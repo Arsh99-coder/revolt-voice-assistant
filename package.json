@@ -16,7 +16,7 @@
     "real-time",
     "electric-motorcycle"
   ],
-  "author": "Your Name",
+  "author": "Mohd Arsh",
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
