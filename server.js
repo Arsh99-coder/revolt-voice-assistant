@@ -107,8 +107,10 @@ async function handleStartConversation(ws, connectionId) {
             model: "gemini-2.5-flash-preview-native-audio-dialog",
             systemInstruction: SYSTEM_INSTRUCTIONS,
             generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 150,
+                temperature: 0.8, // Increased for more creative and varied responses
+                maxOutputTokens: 300, // Increased for longer, more conversational responses
+                topP: 0.9,
+                topK: 40
             }
         });
 
@@ -123,9 +125,16 @@ async function handleStartConversation(ws, connectionId) {
             message: 'Ready to chat about Revolt Motors!'
         }));
 
-        // Send initial greeting
+        // Send initial greeting - multilingual and friendly
         connection.isSpeaking = true;
-        const greeting = await connection.chat.sendMessage("Hello! I'm Rev, your Revolt Motors assistant. How can I help you today?");
+        const greetings = [
+            "Hello! I'm Rev, your friendly Revolt Motors assistant. I can chat in Hindi, English, Tamil, Telugu, and other Indian languages! How can I help you today? Feel free to ask about our bikes, or we can just have a fun conversation!",
+            "Namaste! Main Rev hun, Revolt Motors ka voice assistant. Hindi, English ya koi bhi language mein baat kar sakte hain. Kya madad chahiye? Bikes ke baare mein puchiye ya phir mazedaar baat-cheet karte hain!",
+            "Vanakkam! Naan Rev, Revolt Motors assistant. Tamil, English, Hindi - edhu language la venumanalum pesalam! Electric bike pathi kekanum na illaati vera edhavathu fun-ah pesalam!"
+        ];
+        
+        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+        const greeting = await connection.chat.sendMessage(randomGreeting);
         
         ws.send(JSON.stringify({
             type: 'ai_response',
