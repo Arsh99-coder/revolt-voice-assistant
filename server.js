@@ -1,158 +1,215 @@
-const express = require('express');
 const WebSocket = require('ws');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+// Initialize Google AI
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static('public'));
-
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// System instructions for Revolt Motors
-const SYSTEM_INSTRUCTIONS = `You are Rev, the official voice assistant for Revolt Motors, India's leading electric motorcycle company. Your role is to help customers with information about Revolt's electric motorcycles, particularly the RV400 and RV400 BRZ models.
-
-Key Information about Revolt Motors:
-- Founded to revolutionize Indian transportation with electric motorcycles
-- Flagship models: RV400 and RV400 BRZ
-- Features: AI-enabled, app-controlled, customizable exhaust sounds, 150km range
-- Top speed: 85 kmph, can charge in 4.5 hours
-- Mobile app control: start/stop, locate, lock/unlock, hazard alerts
-- Voice assistance integration for hands-free control
-- Booking available for just ₹499
-- Eco-friendly and sustainable transportation solution
-
-Guidelines:
-- Keep responses concise and conversational
-- Focus only on Revolt Motors products and services
-- If asked about competitors or unrelated topics, politely redirect to Revolt Motors
-- Be enthusiastic about electric mobility and Revolt's innovation
-- Provide helpful information about features, pricing, booking, and specifications
-- Encourage test rides and bookings when appropriate
-
-Always maintain a friendly, knowledgeable, and professional tone while being passionate about Revolt Motors and electric mobility.`;
-
-// Create HTTP server
-const server = app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Use the correct model name - these models support audio input
+const model = genAI.getGenerativeModel({ 
+    model: "gemini-2.5-flash" // This model supports audio input and returns text
 });
 
-// Create WebSocket server
+// Alternative models you can try:
+// const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+const server = require('http').createServer((req, res) => {
+    if (req.url === '/') {
+        const htmlPath = path.join(__dirname, 'index.html');
+        const html = fs.readFileSync(htmlPath, 'utf8');
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(html);
+    } else {
+        res.writeHead(404);
+        res.end('Not Found');
+    }
+});
+
 const wss = new WebSocket.Server({ server });
 
-// Store active connections
-const activeConnections = new Map();
+// Store active sessions
+const sessions = new Map();
 
+class VoiceSession {
+    constructor(ws) {
+        this.ws = ws;
+        this.chat = null;
+        this.isActive = false;
+        this.history = [];
+    }
+
+    async startConversation() {
+        try {
+            // Initialize chat with system prompt for Revolt Motors
+            const systemPrompt = `You are Rev, a friendly multilingual voice assistant for Revolt Motors, India's leading electric motorcycle company. 
+
+Key Information about Revolt Motors:
+- Founded in 2019 by Rahul Sharma
+- Headquarters: Gurugram, India
+- Main products: RV400 and RV400 BRZ electric motorcycles
+- Key features: Swappable batteries, mobile app connectivity, AI-enabled features
+- Range: Up to 150km on single charge
+- Top speed: 85 km/h
+- Charging: Both swappable batteries and charging stations
+- Price range: ₹1.2-1.4 lakhs (ex-showroom)
+
+Personality and Behavior:
+- Respond naturally in the same language the user speaks (Hindi, English, Tamil, Telugu, Bengali, Marathi, Gujarati, etc.)
+- Be enthusiastic about electric vehicles and sustainable transportation
+- Can discuss Revolt bikes, but also engage in general conversation, jokes, songs, and entertainment
+- Keep responses conversational and friendly (2-3 sentences typically)
+- If asked about other bike brands, be respectful but highlight Revolt's advantages
+- Can share jokes, talk about Indian culture, technology, or any general topics
+
+Language Guidelines:
+- Automatically detect and respond in the user's preferred language
+- Use natural, colloquial expressions appropriate to each language
+- For Hindi: Use Hinglish when appropriate, common Hindi phrases
+- For regional languages: Use local expressions and cultural references when relevant
+
+Remember: You're having a natural voice conversation, so keep responses concise and engaging!`;
+
+            this.chat = model.startChat({
+                history: [
+                    {
+                        role: "user",
+                        parts: [{ text: systemPrompt }]
+                    },
+                    {
+                        role: "model", 
+                        parts: [{ text: "Hello! I'm Rev, your Revolt Motors voice assistant! I'm ready to chat with you in Hindi, English, or any Indian language you prefer. I can help you learn about our amazing electric motorcycles, share some jokes, or just have a friendly conversation. What would you like to talk about?" }]
+                    }
+                ]
+            });
+
+            this.isActive = true;
+            this.ws.send(JSON.stringify({
+                type: 'conversation_started',
+                message: 'Ready to chat! I can speak in multiple Indian languages.'
+            }));
+
+        } catch (error) {
+            console.error('Error starting conversation:', error);
+            this.ws.send(JSON.stringify({
+                type: 'error',
+                message: 'Failed to start conversation: ' + error.message
+            }));
+        }
+    }
+
+    async processAudio(audioData, mimeType) {
+        if (!this.isActive || !this.chat) {
+            throw new Error('Conversation not active');
+        }
+
+        try {
+            console.log('Processing audio input...');
+            const startTime = Date.now();
+
+            // Convert base64 audio to proper format for Gemini
+            const audioBuffer = Buffer.from(audioData, 'base64');
+
+            // Send audio to Gemini for processing
+            const result = await this.chat.sendMessage([
+                {
+                    inlineData: {
+                        data: audioData,
+                        mimeType: mimeType
+                    }
+                },
+                { text: "Please respond to the audio message naturally in the same language the user spoke. Keep it conversational and friendly." }
+            ]);
+
+            const response = await result.response;
+            const responseText = response.text();
+            const latency = Date.now() - startTime;
+
+            console.log('AI Response:', responseText);
+
+            // Store in history for context
+            this.history.push({
+                type: 'audio_input',
+                timestamp: new Date(),
+                response: responseText
+            });
+
+            return {
+                text: responseText,
+                latency: latency
+            };
+
+        } catch (error) {
+            console.error('Error processing audio:', error);
+            throw error;
+        }
+    }
+
+    endConversation() {
+        this.isActive = false;
+        this.chat = null;
+        console.log('Conversation ended');
+    }
+}
+
+// Handle WebSocket connections
 wss.on('connection', (ws) => {
-    console.log('New WebSocket connection established');
+    console.log('Client connected');
     
-    const connectionId = Math.random().toString(36).substr(2, 9);
-    activeConnections.set(connectionId, { ws, isListening: false });
+    const session = new VoiceSession(ws);
+    sessions.set(ws, session);
 
     ws.on('message', async (message) => {
         try {
             const data = JSON.parse(message);
-            const connection = activeConnections.get(connectionId);
             
             switch (data.type) {
                 case 'start_conversation':
-                    await handleStartConversation(ws, connectionId);
+                    await handleStartConversation(ws, session);
                     break;
                     
                 case 'audio_data':
-                    await handleAudioData(ws, connectionId, data.audio);
+                    await handleAudioData(ws, session, data);
                     break;
                     
                 case 'natural_interrupt':
-                    await handleNaturalInterrupt(ws, connectionId);
+                    handleNaturalInterrupt(ws, session);
                     break;
                     
                 case 'end_conversation':
-                    await handleEndConversation(ws, connectionId);
+                    handleEndConversation(ws, session);
                     break;
                     
                 default:
                     console.log('Unknown message type:', data.type);
             }
         } catch (error) {
-            console.error('Error processing message:', error);
-            ws.send(JSON.stringify({ 
-                type: 'error', 
-                message: 'Failed to process message' 
+            console.error('Error handling message:', error);
+            ws.send(JSON.stringify({
+                type: 'error',
+                message: 'Server error: ' + error.message
             }));
         }
     });
 
     ws.on('close', () => {
-        console.log('WebSocket connection closed');
-        activeConnections.delete(connectionId);
+        console.log('Client disconnected');
+        if (sessions.has(ws)) {
+            sessions.get(ws).endConversation();
+            sessions.delete(ws);
+        }
     });
 
     ws.on('error', (error) => {
         console.error('WebSocket error:', error);
-        activeConnections.delete(connectionId);
     });
 });
 
-async function handleStartConversation(ws, connectionId) {
+// Handler functions
+async function handleStartConversation(ws, session) {
     try {
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash-preview-native-audio-dialog",
-            systemInstruction: SYSTEM_INSTRUCTIONS,
-            generationConfig: {
-                temperature: 0.8, // Increased for more creative and varied responses
-                maxOutputTokens: 300, // Increased for longer, more conversational responses
-                topP: 0.9,
-                topK: 40
-            }
-        });
-
-        const connection = activeConnections.get(connectionId);
-        connection.model = model;
-        connection.chat = model.startChat();
-        connection.isListening = true;
-        connection.isSpeaking = false; // Track if AI is currently speaking
-
-        ws.send(JSON.stringify({
-            type: 'conversation_started',
-            message: 'Ready to chat about Revolt Motors!'
-        }));
-
-        // Send initial greeting - multilingual and friendly
-        connection.isSpeaking = true;
-        const greetings = [
-            "Hello! I'm Rev, your friendly Revolt Motors assistant. I can chat in Hindi, English, Tamil, Telugu, and other Indian languages! How can I help you today? Feel free to ask about our bikes, or we can just have a fun conversation!",
-            "Namaste! Main Rev hun, Revolt Motors ka voice assistant. Hindi, English ya koi bhi language mein baat kar sakte hain. Kya madad chahiye? Bikes ke baare mein puchiye ya phir mazedaar baat-cheet karte hain!",
-            "Vanakkam! Naan Rev, Revolt Motors assistant. Tamil, English, Hindi - edhu language la venumanalum pesalam! Electric bike pathi kekanum na illaati vera edhavathu fun-ah pesalam!"
-        ];
-        
-        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-        const greeting = await connection.chat.sendMessage(randomGreeting);
-        
-        ws.send(JSON.stringify({
-            type: 'ai_response',
-            text: greeting.response.text(),
-            audio: null // Gemini Live API would provide audio here
-        }));
-
-        // Mark greeting as finished after estimated speaking time
-        const greetingDuration = greeting.response.text().length * 50;
-        setTimeout(() => {
-            if (connection && connection.isSpeaking) {
-                connection.isSpeaking = false;
-                ws.send(JSON.stringify({
-                    type: 'ai_finished_speaking'
-                }));
-            }
-        }, greetingDuration);
-
+        await session.startConversation();
     } catch (error) {
         console.error('Error starting conversation:', error);
         ws.send(JSON.stringify({
@@ -162,153 +219,56 @@ async function handleStartConversation(ws, connectionId) {
     }
 }
 
-async function handleAudioData(ws, connectionId, audioData) {
+async function handleAudioData(ws, session, data) {
     try {
-        const connection = activeConnections.get(connectionId);
+        const result = await session.processAudio(data.audio, data.mimeType);
         
-        if (!connection || !connection.chat) {
-            ws.send(JSON.stringify({
-                type: 'error',
-                message: 'No active conversation'
-            }));
-            return;
-        }
-
-        // If AI is currently speaking, interrupt it naturally
-        if (connection.isSpeaking) {
-            connection.isSpeaking = false;
-            ws.send(JSON.stringify({
-                type: 'natural_interrupt',
-                message: 'AI stopped due to user voice input'
-            }));
-        }
-
-        // In a real implementation with Gemini Live API:
-        // The API handles natural interruption automatically when it detects
-        // new audio input while generating a response
-        
-        // Process the audio input
-        // Convert audio data to the format expected by Gemini Live API
-        const startTime = Date.now();
-        
-        // For demo purposes, we'll simulate speech-to-text
-        // In production, this would be handled by Gemini Live API directly
-        const transcribedText = await simulateSTT(audioData);
-        
-        // Send to Gemini Live API (simulated)
-        const response = await connection.chat.sendMessage(transcribedText);
-        const responseTime = Date.now() - startTime;
-        
-        console.log(`Response generated in ${responseTime}ms for: "${transcribedText}"`);
-
-        // Mark AI as speaking
-        connection.isSpeaking = true;
-
         ws.send(JSON.stringify({
             type: 'ai_response',
-            text: response.response.text(),
-            audio: null, // Would contain audio data from Gemini Live API
-            latency: responseTime,
-            transcription: transcribedText
+            text: result.text,
+            latency: result.latency,
+            // Note: transcription would require additional speech-to-text service
+            // transcription: "User's spoken text would go here"
         }));
-
-        // Simulate AI finishing speaking after response duration
-        const estimatedSpeakingTime = response.response.text().length * 50; // ~50ms per character
-        setTimeout(() => {
-            if (connection && connection.isSpeaking) {
-                connection.isSpeaking = false;
-                ws.send(JSON.stringify({
-                    type: 'ai_finished_speaking'
-                }));
-            }
-        }, estimatedSpeakingTime);
-
+        
     } catch (error) {
         console.error('Error processing audio:', error);
         ws.send(JSON.stringify({
             type: 'error',
-            message: 'Failed to process audio'
+            message: 'Failed to process audio: ' + error.message
         }));
     }
 }
 
-// Simulate speech-to-text for demo purposes
-async function simulateSTT(audioData) {
-    // In a real implementation, this would be handled by Gemini Live API
-    // For demo, we'll return some sample queries
-    const sampleQueries = [
-        "Tell me about RV400 features",
-        "What's the price of RV400 BRZ?",
-        "How far can I travel on a single charge?",
-        "What's the top speed?",
-        "How do I book a test ride?",
-        "Tell me about the mobile app features",
-        "What colors are available?",
-        "How long does charging take?",
-        "What's included in the warranty?",
-        "Where can I service my Revolt bike?"
-    ];
-    
-    return sampleQueries[Math.floor(Math.random() * sampleQueries.length)];
+function handleNaturalInterrupt(ws, session) {
+    // Handle interruption logic
+    console.log('Natural interrupt received');
+    ws.send(JSON.stringify({
+        type: 'natural_interrupt_confirmed',
+        message: 'AI stopped, ready for new input'
+    }));
 }
 
-async function handleInterrupt(ws, connectionId) {
-    try {
-        const connection = activeConnections.get(connectionId);
-        
-        if (connection) {
-            // Stop current AI response
-            connection.isListening = false;
-            
-            ws.send(JSON.stringify({
-                type: 'interrupted',
-                message: 'AI stopped speaking, ready for new input'
-            }));
-            
-            // Reset listening state
-            setTimeout(() => {
-                if (activeConnections.has(connectionId)) {
-                    activeConnections.get(connectionId).isListening = true;
-                    ws.send(JSON.stringify({
-                        type: 'ready_for_input',
-                        message: 'Ready for your question'
-                    }));
-                }
-            }, 500);
-        }
-    } catch (error) {
-        console.error('Error handling interrupt:', error);
-    }
+function handleEndConversation(ws, session) {
+    session.endConversation();
+    ws.send(JSON.stringify({
+        type: 'conversation_ended',
+        message: 'Conversation ended successfully'
+    }));
 }
 
-async function handleEndConversation(ws, connectionId) {
-    try {
-        const connection = activeConnections.get(connectionId);
-        
-        if (connection) {
-            connection.isListening = false;
-            connection.chat = null;
-            connection.model = null;
-        }
+const PORT = process.env.PORT || 3000;
 
-        ws.send(JSON.stringify({
-            type: 'conversation_ended',
-            message: 'Conversation ended. Thanks for choosing Revolt Motors!'
-        }));
-
-    } catch (error) {
-        console.error('Error ending conversation:', error);
-    }
-}
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+server.listen(PORT, () => {
+    console.log(`Revolt Motors Voice Assistant server running on port ${PORT}`);
+    console.log(`Open http://localhost:${PORT} in your browser`);
 });
 
-// Serve the frontend
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Graceful shutdown
+process.on('SIGINT', () => {
+    console.log('Shutting down server...');
+    server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+    });
 });
-
-module.exports = app;
