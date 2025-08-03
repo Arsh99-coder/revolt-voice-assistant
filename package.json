@@ -1,32 +1,32 @@
 {
-  "name": "revolt-voice-assistant",
+  "name": "revolt-motors-voice-assistant",
   "version": "1.0.0",
-  "description": "Real-time voice interface for Revolt Motors using Gemini Live API",
+  "description": "Real-time conversational voice interface using Gemini Live API for Revolt Motors",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [
-    "revolt-motors",
     "voice-assistant",
     "gemini-live-api",
-    "websocket",
-    "real-time",
-    "electric-motorcycle"
+    "revolt-motors",
+    "real-time-chat",
+    "websocket"
   ],
-  "author": "Mohd Arsh",
+  "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
+    "@google/generative-ai": "^0.24.1",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "ws": "^8.18.0"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "ws": "^8.14.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.3"
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1"
   },
   "engines": {
     "node": ">=18.0.0"

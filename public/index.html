@@ -13,44 +13,34 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
+            background: white;
             border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             padding: 40px;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             max-width: 500px;
             width: 90%;
+            text-align: center;
         }
 
         .logo {
-            font-size: 2.5rem;
+            font-size: 2.5em;
             font-weight: bold;
+            color: #667eea;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, #00ff88, #00ccff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.8;
+            color: #666;
             margin-bottom: 30px;
-        }
-
-        .voice-interface {
-            margin: 30px 0;
+            font-size: 1.1em;
         }
 
         .voice-button {
@@ -58,30 +48,31 @@
             height: 120px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(45deg, #00ff88, #00ccff);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-size: 2em;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin: 20px 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
-            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
         }
 
         .voice-button:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 25px rgba(0, 255, 136, 0.4);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
         }
 
-        .voice-button.active {
+        .voice-button.recording {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
             animation: pulse 1.5s infinite;
-            background: linear-gradient(45deg, #ff4444, #ff6b6b);
-            box-shadow: 0 4px 20px rgba(255, 68, 68, 0.3);
         }
 
-        .voice-button.listening {
-            animation: listening 2s infinite;
-            background: linear-gradient(45deg, #00ff88, #00ccff);
+        .voice-button.processing {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+            animation: spin 2s linear infinite;
         }
 
         @keyframes pulse {
@@ -90,66 +81,51 @@
             100% { transform: scale(1); }
         }
 
-        @keyframes listening {
-            0% { box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3); }
-            50% { box-shadow: 0 4px 30px rgba(0, 255, 136, 0.6); }
-            100% { box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3); }
-        }
-
-        .mic-icon {
-            width: 40px;
-            height: 40px;
-            fill: white;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .status {
-            font-size: 1.1rem;
             margin: 20px 0;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.9;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 500;
         }
 
-        .response-area {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: left;
-            font-size: 1rem;
-            line-height: 1.5;
-            flex-direction: column;
-            max-height: 300px;
-            overflow-y: auto;
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .controls {
             display: flex;
-            gap: 15px;
             justify-content: center;
+            gap: 15px;
             margin-top: 20px;
         }
 
         .control-btn {
             padding: 10px 20px;
-            border: none;
+            border: 2px solid #667eea;
+            background: transparent;
+            color: #667eea;
             border-radius: 25px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.9rem;
+            font-weight: 500;
         }
 
         .control-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+            background: #667eea;
+            color: white;
         }
 
         .control-btn:disabled {
@@ -157,616 +133,470 @@
             cursor: not-allowed;
         }
 
-        .natural-interruption-info {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 10px;
+        .response-area {
+            margin-top: 20px;
             padding: 15px;
-            margin: 15px 0;
-            font-size: 0.9rem;
-            text-align: center;
+            background: #f8f9fa;
+            border-radius: 10px;
+            min-height: 100px;
+            text-align: left;
+            display: none;
         }
 
-        .voice-level-indicator {
+        .response-area.visible {
+            display: block;
+        }
+
+        .response-text {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .audio-visualizer {
             width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-            margin-top: 10px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
         }
 
-        .voice-level-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #00ff88, #00ccff);
-            width: 0%;
-            transition: width 0.1s ease;
+        .visualizer-bar {
+            width: 4px;
+            background: #667eea;
+            margin: 0 1px;
+            transition: height 0.1s ease;
+            border-radius: 2px;
         }
 
-        .latency-info {
-            font-size: 0.8rem;
-            opacity: 0.7;
-            margin-top: 10px;
-        }
-
-        .error {
-            color: #ff6b6b;
-            background: rgba(255, 107, 107, 0.1);
-            padding: 10px;
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
             border-radius: 10px;
-            margin: 10px 0;
+            margin-top: 20px;
+            color: #1976d2;
+            font-size: 0.9em;
+            line-height: 1.5;
         }
 
-        .success {
-            color: #00ff88;
-            background: rgba(0, 255, 136, 0.1);
-            padding: 10px;
-            border-radius: 10px;
-            margin: 10px 0;
+        .wave {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: wave 1.4s infinite ease-in-out;
+            margin: 0 2px;
         }
 
-        .transcription {
-            background: rgba(0, 255, 136, 0.1);
-            border-left: 3px solid #00ff88;
-            padding: 8px 12px;
-            margin: 8px 0;
-            font-size: 0.9rem;
-            font-style: italic;
-            width: 100%;
-            text-align: left;
+        .wave:nth-child(2) { animation-delay: -1.2s; }
+        .wave:nth-child(3) { animation-delay: -1.0s; }
+        .wave:nth-child(4) { animation-delay: -0.8s; }
+
+        @keyframes wave {
+            0%, 40%, 100% { transform: scaleY(0.4); }
+            20% { transform: scaleY(1.0); }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">REVOLT</div>
-        <div class="subtitle">Voice Assistant - Electric Revolution</div>
+        <div class="subtitle">Voice Assistant</div>
         
-        <div class="voice-interface">
-            <button id="voiceButton" class="voice-button">
-                <svg class="mic-icon" viewBox="0 0 24 24">
-                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                </svg>
-            </button>
-            
-            <div id="status" class="status">Click the mic to start talking to Rev</div>
+        <div class="status" id="status">Ready to connect</div>
+        
+        <button class="voice-button" id="voiceButton">
+            🎤
+        </button>
+        
+        <div class="audio-visualizer" id="visualizer" style="display: none;">
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
         </div>
-
-        <div id="responseArea" class="response-area">
-            <div>
-                🎤 <strong>Welcome to Revolt Motors!</strong><br><br>
-                I'm <strong>Rev</strong>, your multilingual voice assistant! I can chat in:<br>
-                🇮🇳 <strong>Hindi</strong> • English • Tamil • Telugu • Bengali • Marathi • Gujarati<br><br>
-                
-                <strong>What I can help with:</strong><br>
-                🏍️ Revolt Motors bikes (RV400, RV400 BRZ)<br>
-                😄 Jokes and fun conversations<br>
-                🎵 Songs and entertainment<br>
-                💬 General chat in your language<br>
-                🌟 Technology, culture, and more!<br><br>
-                
-                <em>Just start speaking in any language you prefer!</em>
-            </div>
-        </div>
-
-        <div class="natural-interruption-info">
-            💡 <strong>Natural Conversation:</strong> Just start speaking in Hindi, English, Tamil, or any Indian language - I'll automatically respond in your preferred language and can discuss anything from Revolt bikes to jokes and songs!
-        </div>
-
+        
         <div class="controls">
-            <button id="startBtn" class="control-btn">Start Chat</button>
-            <button id="endBtn" class="control-btn" disabled>End Chat</button>
+            <button class="control-btn" id="connectBtn">Connect</button>
+            <button class="control-btn" id="interruptBtn" disabled>Interrupt</button>
+            <button class="control-btn" id="endSessionBtn" disabled>End Session</button>
         </div>
-
-        <div class="voice-level-indicator">
-            <div id="voiceLevelBar" class="voice-level-bar"></div>
+        
+        <div class="response-area" id="responseArea">
+            <div class="response-text" id="responseText"></div>
+            <audio id="responseAudio" controls style="width: 100%; margin-top: 10px;"></audio>
         </div>
-
-        <div id="latencyInfo" class="latency-info"></div>
+        
+        <div class="instructions">
+            <strong>How to use:</strong><br>
+            1. Click "Connect" to start a session<br>
+            2. Click the microphone and speak your question about Revolt Motors<br>
+            3. The AI will respond with voice and text<br>
+            4. You can interrupt the AI while it's speaking<br>
+            5. Ask about bikes, booking, features, pricing, service centers, etc.
+        </div>
     </div>
 
     <script>
-        class RevoltVoiceAssistant {
+        class VoiceInterface {
             constructor() {
                 this.ws = null;
-                this.isConnected = false;
-                this.isListening = false;
-                this.isRecording = false;
-                this.aiIsSpeaking = false;
                 this.mediaRecorder = null;
                 this.audioChunks = [];
-                this.audioContext = null;
-                this.analyser = null;
-                this.voiceLevelMonitor = null;
-                this.currentStream = null;
+                this.isRecording = false;
+                this.isConnected = false;
+                this.isSessionActive = false;
+                this.recognition = null;
+                this.synthesis = window.speechSynthesis;
+                this.currentUtterance = null;
                 
                 this.initializeElements();
                 this.setupEventListeners();
-                this.connectWebSocket();
+                this.initializeSpeechRecognition();
             }
 
             initializeElements() {
+                this.statusEl = document.getElementById('status');
                 this.voiceButton = document.getElementById('voiceButton');
-                this.status = document.getElementById('status');
+                this.connectBtn = document.getElementById('connectBtn');
+                this.interruptBtn = document.getElementById('interruptBtn');
+                this.endSessionBtn = document.getElementById('endSessionBtn');
                 this.responseArea = document.getElementById('responseArea');
-                this.startBtn = document.getElementById('startBtn');
-                this.endBtn = document.getElementById('endBtn');
-                this.latencyInfo = document.getElementById('latencyInfo');
-                this.voiceLevelBar = document.getElementById('voiceLevelBar');
+                this.responseText = document.getElementById('responseText');
+                this.responseAudio = document.getElementById('responseAudio');
+                this.visualizer = document.getElementById('visualizer');
             }
 
             setupEventListeners() {
-                this.voiceButton.addEventListener('click', () => this.toggleVoiceRecording());
-                this.startBtn.addEventListener('click', () => this.startConversation());
-                this.endBtn.addEventListener('click', () => this.endConversation());
-
-                // Keyboard shortcuts
-                document.addEventListener('keydown', (e) => {
-                    if (e.code === 'Space' && e.target === document.body) {
-                        e.preventDefault();
-                        this.toggleVoiceRecording();
-                    }
-                    if (e.key === 'Escape') {
-                        this.stopRecording();
-                    }
-                });
-
-                // Handle page unload
-                window.addEventListener('beforeunload', () => {
-                    this.cleanup();
-                });
+                this.connectBtn.addEventListener('click', () => this.connect());
+                this.voiceButton.addEventListener('click', () => this.toggleRecording());
+                this.interruptBtn.addEventListener('click', () => this.interrupt());
+                this.endSessionBtn.addEventListener('click', () => this.endSession());
             }
 
-            connectWebSocket() {
-                // More flexible WebSocket URL construction
-                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const host = window.location.host;
-                const wsUrl = `${protocol}//${host}`;
-                
-                try {
-                    this.ws = new WebSocket(wsUrl);
-
-                    this.ws.onopen = () => {
-                        console.log('WebSocket connected');
-                        this.isConnected = true;
-                        this.updateStatus('Connected to Revolt Motors Assistant');
+            initializeSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = true;
+                    this.recognition.lang = 'en-US';
+                    
+                    this.recognition.onstart = () => {
+                        this.isRecording = true;
+                        this.voiceButton.classList.add('recording');
+                        this.voiceButton.textContent = '🔴';
+                        this.updateStatus('Listening... Speak now');
+                        this.showVisualizer();
                     };
-
-                    this.ws.onmessage = (event) => {
-                        try {
-                            const data = JSON.parse(event.data);
-                            this.handleWebSocketMessage(data);
-                        } catch (error) {
-                            console.error('Error parsing WebSocket message:', error);
+                    
+                    this.recognition.onresult = (event) => {
+                        let finalTranscript = '';
+                        let interimTranscript = '';
+                        
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            const transcript = event.results[i][0].transcript;
+                            if (event.results[i].isFinal) {
+                                finalTranscript += transcript;
+                            } else {
+                                interimTranscript += transcript;
+                            }
+                        }
+                        
+                        if (finalTranscript) {
+                            this.sendTextInput(finalTranscript);
+                        }
+                        
+                        // Show interim results
+                        if (interimTranscript) {
+                            this.updateStatus(`Hearing: "${interimTranscript}"`);
                         }
                     };
-
-                    this.ws.onclose = (event) => {
-                        console.log('WebSocket disconnected', event.code, event.reason);
-                        this.isConnected = false;
-                        this.updateStatus('Disconnected - Please refresh the page');
-                        this.showError('Connection lost. Please refresh the page.');
-                        this.cleanup();
+                    
+                    this.recognition.onend = () => {
+                        this.isRecording = false;
+                        this.voiceButton.classList.remove('recording');
+                        this.voiceButton.textContent = '🎤';
+                        this.hideVisualizer();
                     };
-
-                    this.ws.onerror = (error) => {
-                        console.error('WebSocket error:', error);
-                        this.showError('Connection error occurred');
+                    
+                    this.recognition.onerror = (event) => {
+                        console.error('Speech recognition error:', event.error);
+                        this.updateStatus(`Speech recognition error: ${event.error}`, 'error');
+                        this.isRecording = false;
+                        this.voiceButton.classList.remove('recording');
+                        this.voiceButton.textContent = '🎤';
+                        this.hideVisualizer();
                     };
-                } catch (error) {
-                    console.error('Failed to create WebSocket connection:', error);
-                    this.showError('Failed to connect to server');
+                } else {
+                    console.warn('Speech recognition not supported');
+                    this.updateStatus('Speech recognition not supported in this browser', 'error');
                 }
             }
 
-            handleWebSocketMessage(data) {
+            connect() {
+                if (this.isConnected) return;
+
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}`;
+                
+                this.ws = new WebSocket(wsUrl);
+                
+                this.ws.onopen = () => {
+                    this.isConnected = true;
+                    this.updateStatus('Connected', 'connected');
+                    this.connectBtn.textContent = 'Connected';
+                    this.connectBtn.disabled = true;
+                    this.startSession();
+                };
+
+                this.ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    this.handleMessage(data);
+                };
+
+                this.ws.onclose = () => {
+                    this.isConnected = false;
+                    this.isSessionActive = false;
+                    this.updateStatus('Disconnected');
+                    this.resetButtons();
+                };
+
+                this.ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    this.updateStatus('Connection error', 'error');
+                };
+            }
+
+            startSession() {
+                if (!this.ws || !this.isConnected) return;
+
+                this.ws.send(JSON.stringify({
+                    type: 'start_session'
+                }));
+            }
+
+            handleMessage(data) {
                 switch (data.type) {
-                    case 'conversation_started':
-                        this.updateStatus('Conversation started - Just start speaking naturally!');
-                        this.startBtn.disabled = true;
-                        this.endBtn.disabled = false;
-                        this.isListening = true;
-                        this.setupContinuousListening();
-                        break;
-
-                    case 'natural_interrupt_confirmed':
-                        console.log('AI stopped, will process next audio input');
-                        this.updateStatus('AI stopped - continue with your question');
-                        break;
-
-                    case 'ai_response':
-                        this.displayResponse(data.text);
-                        this.aiIsSpeaking = true;
-                        if (data.latency) {
-                            this.latencyInfo.textContent = `Response time: ${data.latency}ms`;
-                        }
-                        if (data.transcription) {
-                            console.log('You said:', data.transcription);
-                            this.showTranscription(data.transcription);
-                        }
-                        if (data.isInterruptionResponse) {
-                            console.log('This response is from an interruption');
-                            this.updateStatus('Rev answered your interrupting question');
-                        } else {
-                            this.updateStatus('Rev is speaking - start talking anytime to interrupt');
+                    case 'session_started':
+                        this.isSessionActive = true;
+                        this.updateStatus('Session active - Ready to talk!', 'connected');
+                        this.endSessionBtn.disabled = false;
+                        this.interruptBtn.disabled = false;
+                        
+                        // Speak welcome message if provided
+                        if (data.message) {
+                            this.speakText(data.message);
+                            this.displayTextResponse(data.message);
                         }
                         break;
 
-                    case 'natural_interrupt':
-                        console.log('AI naturally interrupted by user voice');
-                        this.aiIsSpeaking = false;
-                        this.updateStatus('Rev stopped to listen to you');
-                        this.stopSpeechSynthesis();
+                    case 'text_response':
+                        this.displayTextResponse(data.text);
                         break;
 
-                    case 'ai_finished_speaking':
-                        this.aiIsSpeaking = false;
-                        this.updateStatus('Rev finished speaking - you can ask another question');
+                    case 'tts_request':
+                        this.speakText(data.text);
                         break;
 
-                    case 'conversation_ended':
-                        this.updateStatus('Conversation ended');
-                        this.startBtn.disabled = false;
-                        this.endBtn.disabled = true;
-                        this.isListening = false;
-                        this.aiIsSpeaking = false;
-                        this.stopContinuousListening();
+                    case 'processing_audio':
+                        this.updateStatus(data.message);
                         break;
 
                     case 'error':
-                        this.showError(data.message || 'Unknown error occurred');
+                        this.updateStatus(`Error: ${data.message}`, 'error');
                         break;
 
-                    default:
-                        console.log('Unknown message type:', data.type);
+                    case 'interruption_handled':
+                        this.updateStatus('Interruption handled - Ready for new input', 'connected');
+                        break;
                 }
             }
 
-            async setupContinuousListening() {
-                try {
-                    this.currentStream = await navigator.mediaDevices.getUserMedia({ 
-                        audio: {
-                            sampleRate: 16000,
-                            channelCount: 1,
-                            echoCancellation: true,
-                            noiseSuppression: true,
-                            autoGainControl: true
-                        } 
-                    });
-
-                    // Set up audio context for voice level monitoring
-                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const source = this.audioContext.createMediaStreamSource(this.currentStream);
-                    this.analyser = this.audioContext.createAnalyser();
-                    this.analyser.fftSize = 256;
-                    source.connect(this.analyser);
-
-                    // Start voice level monitoring
-                    this.startVoiceLevelMonitoring();
-
-                    // Set up MediaRecorder for voice activity detection
-                    const mimeType = this.getSupportedMimeType();
-                    this.mediaRecorder = new MediaRecorder(this.currentStream, { mimeType });
-
-                    let silenceTimer = null;
-                    let isCurrentlyRecording = false;
-
-                    this.mediaRecorder.ondataavailable = (event) => {
-                        if (event.data.size > 0) {
-                            this.audioChunks.push(event.data);
-                        }
-                    };
-
-                    this.mediaRecorder.onstop = () => {
-                        if (this.audioChunks.length > 0) {
-                            const audioBlob = new Blob(this.audioChunks, { type: mimeType });
-                            this.sendAudioData(audioBlob);
-                            this.audioChunks = [];
-                        }
-                        isCurrentlyRecording = false;
-                    };
-
-                    // Voice Activity Detection (VAD) with interruption handling
-                    const checkVoiceActivity = () => {
-                        if (!this.isListening || !this.analyser) return;
-
-                        const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-                        this.analyser.getByteFrequencyData(dataArray);
-                        
-                        // Calculate average volume
-                        const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-                        const threshold = 30; // Adjust this threshold as needed
-
-                        if (average > threshold && !isCurrentlyRecording) {
-                            // Voice detected
-                            console.log('Voice activity detected');
-                            
-                            // If AI is speaking, interrupt it and indicate we'll process new input
-                            if (this.aiIsSpeaking) {
-                                console.log('Interrupting AI to listen to new question');
-                                this.stopSpeechSynthesis();
-                                // Notify server about interruption
-                                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                                    this.ws.send(JSON.stringify({
-                                        type: 'natural_interrupt'
-                                    }));
-                                }
-                                this.aiIsSpeaking = false;
-                            }
-                            
-                            // Start recording the new input
-                            this.audioChunks = [];
-                            if (this.mediaRecorder.state === 'inactive') {
-                                this.mediaRecorder.start();
-                                isCurrentlyRecording = true;
-                                this.voiceButton.classList.add('listening');
-                                this.updateStatus('Listening to your question...');
-                            }
-                            
-                            if (silenceTimer) {
-                                clearTimeout(silenceTimer);
-                                silenceTimer = null;
-                            }
-                        } else if (average <= threshold && isCurrentlyRecording) {
-                            // Silence detected - set timer to stop recording and process the question
-                            if (!silenceTimer) {
-                                silenceTimer = setTimeout(() => {
-                                    if (isCurrentlyRecording && this.mediaRecorder.state === 'recording') {
-                                        console.log('Silence detected, processing question');
-                                        this.mediaRecorder.stop();
-                                        this.voiceButton.classList.remove('listening');
-                                        this.updateStatus('Processing your question...');
-                                    }
-                                    silenceTimer = null;
-                                }, 1500); // Stop after 1.5 seconds of silence
-                            }
-                        }
-
-                        if (this.isListening) {
-                            requestAnimationFrame(checkVoiceActivity);
-                        }
-                    };
-
-                    // Start voice activity detection
-                    checkVoiceActivity();
-
-                } catch (error) {
-                    console.error('Error setting up continuous listening:', error);
-                    this.showError('Failed to set up continuous listening: ' + error.message);
-                }
-            }
-
-            getSupportedMimeType() {
-                const types = [
-                    'audio/webm;codecs=opus',
-                    'audio/webm',
-                    'audio/mp4',
-                    'audio/ogg;codecs=opus'
-                ];
+            sendTextInput(text) {
+                if (!this.ws || !this.isSessionActive) return;
                 
-                for (const type of types) {
-                    if (MediaRecorder.isTypeSupported(type)) {
-                        return type;
-                    }
+                this.updateStatus('Processing your message...');
+                this.voiceButton.classList.add('processing');
+                this.voiceButton.textContent = '⏳';
+                
+                this.ws.send(JSON.stringify({
+                    type: 'text_input',
+                    text: text
+                }));
+            }
+
+            speakText(text) {
+                // Stop any current speech
+                if (this.currentUtterance) {
+                    this.synthesis.cancel();
                 }
                 
-                return 'audio/webm'; // fallback
-            }
-
-            startVoiceLevelMonitoring() {
-                const updateVoiceLevel = () => {
-                    if (!this.analyser || !this.isListening) return;
-
-                    const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-                    this.analyser.getByteFrequencyData(dataArray);
-                    
-                    const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-                    const percentage = Math.min((average / 128) * 100, 100);
-                    
-                    this.voiceLevelBar.style.width = `${percentage}%`;
-
-                    if (this.isListening) {
-                        requestAnimationFrame(updateVoiceLevel);
-                    }
+                this.currentUtterance = new SpeechSynthesisUtterance(text);
+                this.currentUtterance.rate = 0.9;
+                this.currentUtterance.pitch = 1.0;
+                this.currentUtterance.volume = 1.0;
+                
+                // Try to use a more natural voice
+                const voices = this.synthesis.getVoices();
+                const preferredVoice = voices.find(voice => 
+                    voice.name.includes('Female') || 
+                    voice.name.includes('Samantha') ||
+                    voice.name.includes('Google')
+                );
+                
+                if (preferredVoice) {
+                    this.currentUtterance.voice = preferredVoice;
+                }
+                
+                this.currentUtterance.onstart = () => {
+                    this.updateStatus('Speaking response...', 'connected');
                 };
                 
-                updateVoiceLevel();
+                this.currentUtterance.onend = () => {
+                    this.updateStatus('Ready for your next question', 'connected');
+                    this.voiceButton.classList.remove('processing');
+                    this.voiceButton.textContent = '🎤';
+                };
+                
+                this.currentUtterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event);
+                    this.updateStatus('Error playing speech', 'error');
+                    this.voiceButton.classList.remove('processing');
+                    this.voiceButton.textContent = '🎤';
+                };
+                
+                this.synthesis.speak(this.currentUtterance);
             }
 
-            stopContinuousListening() {
-                this.isListening = false;
-                
-                if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
-                    this.mediaRecorder.stop();
-                }
-                
-                if (this.currentStream) {
-                    this.currentStream.getTracks().forEach(track => track.stop());
-                    this.currentStream = null;
-                }
-                
-                if (this.audioContext && this.audioContext.state !== 'closed') {
-                    this.audioContext.close();
-                    this.audioContext = null;
-                }
-                
-                this.voiceButton.classList.remove('listening');
-                this.voiceLevelBar.style.width = '0%';
-            }
-
-            toggleVoiceRecording() {
-                if (!this.isListening) {
-                    this.showError('Please start a conversation first');
-                    return;
-                }
-                
-                console.log('Manual voice trigger - continuous listening is active');
-            }
-
-            async startConversation() {
-                if (!this.isConnected) {
-                    this.showError('Not connected to server');
+            async toggleRecording() {
+                if (!this.isSessionActive) {
+                    this.updateStatus('Please connect and start a session first', 'error');
                     return;
                 }
 
-                try {
-                    await this.requestMicrophonePermission();
-                    
-                    if (this.ws.readyState === WebSocket.OPEN) {
-                        this.ws.send(JSON.stringify({
-                            type: 'start_conversation'
-                        }));
-                        
-                        this.updateStatus('Starting conversation...');
-                    } else {
-                        this.showError('WebSocket not ready');
-                    }
-                } catch (error) {
-                    this.showError('Microphone permission required');
+                if (this.isRecording) {
+                    this.stopRecording();
+                } else {
+                    this.startRecording();
                 }
             }
 
-            async requestMicrophonePermission() {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    stream.getTracks().forEach(track => track.stop()); // Just checking permission
-                    return true;
-                } catch (error) {
-                    throw new Error('Microphone access denied');
+            startRecording() {
+                if (!this.recognition) {
+                    this.updateStatus('Speech recognition not available', 'error');
+                    return;
                 }
-            }
-
-            async sendAudioData(audioBlob) {
+                
                 try {
-                    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-                        throw new Error('WebSocket not connected');
-                    }
-
-                    // Convert blob to base64 for transmission
-                    const arrayBuffer = await audioBlob.arrayBuffer();
-                    const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-
-                    this.ws.send(JSON.stringify({
-                        type: 'audio_data',
-                        audio: base64Audio,
-                        mimeType: audioBlob.type
-                    }));
-
+                    this.recognition.start();
                 } catch (error) {
-                    console.error('Error sending audio:', error);
-                    this.showError('Failed to send audio data: ' + error.message);
+                    console.error('Error starting speech recognition:', error);
+                    this.updateStatus('Error starting voice recognition', 'error');
                 }
             }
 
             stopRecording() {
-                if (this.mediaRecorder && this.isRecording) {
-                    this.mediaRecorder.stop();
-                    this.isRecording = false;
-                    this.voiceButton.classList.remove('listening');
-                    this.updateStatus('Processing your question...');
+                if (this.recognition && this.isRecording) {
+                    this.recognition.stop();
                 }
             }
 
-            endConversation() {
-                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                    this.ws.send(JSON.stringify({
-                        type: 'end_conversation'
-                    }));
+
+
+            displayTextResponse(text) {
+                this.responseText.textContent = text;
+                this.responseArea.classList.add('visible');
+                
+                // Auto-scroll to show response
+                this.responseArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            interrupt() {
+                if (!this.isSessionActive) return;
+
+                // Stop current speech synthesis
+                if (this.synthesis && !this.synthesis.paused) {
+                    this.synthesis.cancel();
                 }
-                
-                this.stopContinuousListening();
-                this.stopSpeechSynthesis();
-            }
 
-            stopSpeechSynthesis() {
-                if ('speechSynthesis' in window) {
-                    speechSynthesis.cancel();
+                // Stop any current recording
+                if (this.isRecording && this.recognition) {
+                    this.recognition.stop();
                 }
-            }
 
-            cleanup() {
-                this.stopContinuousListening();
-                this.stopSpeechSynthesis();
-                if (this.ws) {
-                    this.ws.close();
+                // Stop audio playback
+                if (this.responseAudio && !this.responseAudio.paused) {
+                    this.responseAudio.pause();
                 }
+
+                this.ws.send(JSON.stringify({
+                    type: 'interrupt'
+                }));
+
+                this.updateStatus('Interrupted - Ready for new input', 'connected');
+                this.voiceButton.classList.remove('processing', 'recording');
+                this.voiceButton.textContent = '🎤';
             }
 
-            updateStatus(message) {
-                this.status.textContent = message;
-                this.status.className = 'status';
+            endSession() {
+                if (!this.isSessionActive) return;
+
+                this.ws.send(JSON.stringify({
+                    type: 'end_session'
+                }));
+
+                this.isSessionActive = false;
+                this.updateStatus('Session ended');
+                this.resetButtons();
             }
 
-            displayResponse(text) {
-                const responseDiv = document.createElement('div');
-                responseDiv.innerHTML = `<strong>Rev:</strong> ${text}`;
-                responseDiv.style.marginBottom = '10px';
-                this.responseArea.appendChild(responseDiv);
-                
-                // Scroll to bottom
-                this.responseArea.scrollTop = this.responseArea.scrollHeight;
-                
-                // Text-to-speech simulation
-                if ('speechSynthesis' in window && text) {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.rate = 0.9;
-                    utterance.pitch = 1;
-                    utterance.volume = 0.8;
-                    
-                    utterance.onend = () => {
-                        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                            this.ws.send(JSON.stringify({
-                                type: 'ai_finished_speaking'
-                            }));
-                        }
-                    };
-                    
-                    speechSynthesis.speak(utterance);
-                }
+            updateStatus(message, type = '') {
+                this.statusEl.textContent = message;
+                this.statusEl.className = `status ${type}`;
             }
 
-            showTranscription(text) {
-                const transcriptionDiv = document.createElement('div');
-                transcriptionDiv.className = 'transcription';
-                transcriptionDiv.innerHTML = `<strong>You:</strong> "${text}"`;
-                this.responseArea.appendChild(transcriptionDiv);
-                
-                // Scroll to bottom
-                this.responseArea.scrollTop = this.responseArea.scrollHeight;
+            resetButtons() {
+                this.connectBtn.textContent = 'Connect';
+                this.connectBtn.disabled = false;
+                this.endSessionBtn.disabled = true;
+                this.interruptBtn.disabled = true;
+                this.voiceButton.classList.remove('recording', 'processing');
+                this.voiceButton.textContent = '🎤';
             }
 
-            showError(message) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error';
-                errorDiv.textContent = message;
-                this.responseArea.appendChild(errorDiv);
-                
-                // Scroll to bottom
-                this.responseArea.scrollTop = this.responseArea.scrollHeight;
-                
-                setTimeout(() => {
-                    if (errorDiv.parentNode) {
-                        errorDiv.parentNode.removeChild(errorDiv);
-                    }
-                }, 5000);
+            showVisualizer() {
+                this.visualizer.style.display = 'flex';
+                this.animateVisualizer();
+            }
+
+            hideVisualizer() {
+                this.visualizer.style.display = 'none';
+            }
+
+            animateVisualizer() {
+                if (!this.isRecording) return;
+
+                const bars = this.visualizer.querySelectorAll('.visualizer-bar');
+                bars.forEach(bar => {
+                    const height = Math.random() * 40 + 10;
+                    bar.style.height = `${height}px`;
+                });
+
+                setTimeout(() => this.animateVisualizer(), 100);
             }
         }
 
-        // Initialize the voice assistant when the page loads
+        // Initialize the voice interface when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            // Check for required browser features
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert('Your browser does not support audio recording. Please use a modern browser.');
-                return;
-            }
-            
-            if (!window.WebSocket) {
-                alert('Your browser does not support WebSocket connections. Please use a modern browser.');
-                return;
-            }
-            
-            new RevoltVoiceAssistant();
+            new VoiceInterface();
         });
     </script>
 </body>
